@@ -20,6 +20,14 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema)
 
+contactSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
 const cors = require('cors')
 
 app.use(cors())
@@ -45,6 +53,20 @@ app.get('/', (request, response) => {
 })
 
 
+app.get('/info', (request, response) => {
+    const now = Date();
+    if( persons.length === 0){
+        response.send(`<p>The phonebook haven´t any data<p>
+        <p>${now}</p>`);
+    }else{
+         response.send(`
+        <p>The Phonebook has info for ${persons.length} people</p>
+        <p>${now}</p>`
+         );        
+    }
+
+  })
+
 app.get('/api/persons', (request, response) => {
   Contact.find({}).then(contacts => {
     response.json(contacts)
@@ -53,7 +75,29 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
+app.get('/api/persons/:id', (request, response) => {
+    
+    const id = Number(request.params.id)
 
+    const person = Contact.find(person => person.id === id)
+    
+    if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+
+})
+
+app.delete('/api/persons/:id', (request, response) => {
+
+    const id = Number(request.params.id)
+
+    persons = Contact.filter(person => person.id !== id)
+
+    response.status(204).end()
+
+})
 
 
 app.post('/api/persons', ( request, response ) => {
@@ -69,7 +113,7 @@ app.post('/api/persons', ( request, response ) => {
         errorMessages.push('name don´t be empty')
     }else{
 
-        const duplicateName = persons.filter( person => person.name === name )
+        const duplicateName = Contact.filter( person => person.name === name )
         
         if( duplicateName.length > 0 ){
             errorMessages.push(`name ${name} exist in Phonebook`)
