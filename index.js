@@ -1,7 +1,24 @@
 
 const express = require('express')
+const mongoose = require('mongoose');
 const app = express()
 
+const url = process.env.MONGODB_URI
+
+mongoose.connect(url)
+.then(result => {
+  console.log('connected to MongoDB')
+})
+.catch(error => {
+  console.log('error connecting to MongoDB:', error.message)
+})
+
+const contactSchema = new mongoose.Schema({
+  name: 'string',
+  number: 'string',
+})
+
+const Contact = mongoose.model('Contact', contactSchema)
 
 const cors = require('cors')
 
@@ -21,28 +38,7 @@ morgan.token('postData', (request, response) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'));
 
-let persons = [
-    { 
-      "id": 1,
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": 2,
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": 3,
-      "name": "Dan Abramovss", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": 4,
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
+let persons = []
 
 app.use(express.static('dist'))
 
@@ -66,7 +62,11 @@ app.get('/info', (request, response) => {
   })
 
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Contact.find({}).then(contacts => {
+    response.json(contacts)
+  }).catch(e => {
+    console.log(`Error:`, e)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {

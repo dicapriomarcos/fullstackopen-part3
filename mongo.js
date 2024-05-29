@@ -26,12 +26,12 @@ mongoose.connect(url)
     console.log('error connecting to MongoDB:', error.message)
   })
 
-const phonebookSchema = new mongoose.Schema({
+const contactSchema = new mongoose.Schema({
     name: 'string',
     number: 'string',
   })
 
-const Contact = mongoose.model('Contact', phonebookSchema)
+const Contact = mongoose.model('Contact', contactSchema)
 
 if (process.argv.length === 3) {
     
