@@ -38,8 +38,6 @@ morgan.token('postData', (request, response) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'));
 
-let persons = []
-
 app.use(express.static('dist'))
 
 app.get('/', (request, response) => {
@@ -47,105 +45,10 @@ app.get('/', (request, response) => {
 })
 
 
-app.get('/info', (request, response) => {
-    const now = Date();
-    if( persons.length === 0){
-        response.send(`<p>The phonebook haven´t any data<p>
-        <p>${now}</p>`);
-    }else{
-         response.send(`
-        <p>The Phonebook has info for ${persons.length} people</p>
-        <p>${now}</p>`
-         );        
-    }
-
-  })
-
 app.get('/api/persons', (request, response) => {
   Contact.find({}).then(contacts => {
     response.json(contacts)
   }).catch(e => {
     console.log(`Error:`, e)
   })
-})
-
-app.get('/api/persons/:id', (request, response) => {
-    
-    const id = Number(request.params.id)
-
-    const person = persons.find(person => person.id === id)
-    
-    if (person) {
-        response.json(person)
-      } else {
-        response.status(404).end()
-      }
-
-})
-
-app.delete('/api/persons/:id', (request, response) => {
-
-    const id = Number(request.params.id)
-
-    persons = persons.filter(person => person.id !== id)
-
-    response.status(204).end()
-
-})
-
-
-app.post('/api/persons', ( request, response ) => {
-
-    let errorMessages = [];
-
-    const body = request.body
-
-    const name = body.name
-
-    // name validation
-    if( !name ){
-        errorMessages.push('name don´t be empty')
-    }else{
-
-        const duplicateName = persons.filter( person => person.name === name )
-        
-        if( duplicateName.length > 0 ){
-            errorMessages.push(`name ${name} exist in Phonebook`)
-        } 
-
-    }
-
-    const number = body.number
-
-    // number validation
-    if( !number ){
-        errorMessages.push('number don´t be empty')
-    }
-    
-    if( errorMessages.length > 0 ){
-
-        const errorMessage = errorMessages.map(error => `<p>${error}<p>`).join('<br>')
-        response.send(errorMessage).status(403).end()
-
-    }else{
-
-        const personObj = {
-            id: Math.floor(Math.random() * 9999),
-            name: name,
-            number: number
-
-        }
-
-        persons = [...persons, personObj]
-
-        response.send(`New contact ${name} with number ${number} was added to Phonebook`).status(200).end()
-    }
-    
-    
-
-})
-
-const PORT = 3001
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
 })
