@@ -130,7 +130,7 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number
   }
 
-  Contact.findByIdAndUpdate( id, contact )
+  Contact.findByIdAndUpdate( id, contact, {new: true} )
   .then( updatedContact => response.json(updatedContact) )
   .catch( e => next(e) )
 
