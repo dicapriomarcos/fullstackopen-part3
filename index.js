@@ -125,14 +125,12 @@ app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   const body = request.body
 
-  console.log(body)
-
   const contact = {
     name: body.name,
     number: body.number
   }
 
-  Contact.findByIdAndUpdate( id, contact, {new: true} )
+  Contact.findByIdAndUpdate( id, contact )
   .then( updatedContact => response.json(updatedContact) )
   .catch( e => next(e) )
 
