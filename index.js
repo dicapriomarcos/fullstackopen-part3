@@ -119,7 +119,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 })
 
-
+/*
 app.get('/info', (request, response) => {
   const now = Date();
   if( persons.length === 0){
@@ -132,6 +132,7 @@ app.get('/info', (request, response) => {
         );        
   }
 })
+*/
 
 
 // Endpoints not found
