@@ -34,13 +34,10 @@ const contactSchema = new mongoose.Schema({
 const Contact = mongoose.model('Contact', contactSchema)
 
 if (process.argv.length === 3) {
-    
     Contact.find({}).then(result => {
         console.log('Phonebook:')
         result.forEach(contact => {
-            
           console.log(contact.name, contact.number)
-          
         })
         mongoose.connection.close()
     }).catch(e => {
@@ -62,4 +59,3 @@ if( process.argv.length === 5 ){
     mongoose.connection.close()
     })
 }
-

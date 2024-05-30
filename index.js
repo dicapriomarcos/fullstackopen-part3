@@ -1,6 +1,5 @@
 require('dotenv').config()
 
-
 const express = require('express')
 const app = express()
 const Contact = require('./models/contact')
@@ -47,57 +46,19 @@ app.post('/api/persons', ( request, response, next ) => {
   const name = body.name
   const number = body.number
 
-  // name validation
-/*
-  if( name === undefined || name === '' ){
+  const newContact = new Contact({
+      name: name,
+      number: number
+  })
 
-    return response.status(400).json({ error: 'name content missing' })
+  newContact.save().then( contact => {
+      response.json(contact)
+  }).catch( e => next(e) )
 
-  }
-  */
-  /*
-  if( !name ){
-      errorMessages.push('name don´t be empty')
-  }else{
-
-
-      console.log(Contact)
-      const duplicateName = Contact.filter( person => person.name === name )
-      
-      if( duplicateName.length > 0 ){
-          errorMessages.push(`name ${name} exist in Phonebook`)
-      } 
-
-  }
-
-  // number validation
-  if( !number ){
-      errorMessages.push('number don´t be empty')
-  }
-  
-  if( errorMessages.length > 0 ){
-
-      const errorMessage = errorMessages.map(error => `<p>${error}<p>`).join('<br>')
-      response.send(errorMessage).status(403).end()
-
-  }else{
-    */
-      const newContact = new Contact({
-          name: name,
-          number: number
-      })
-
-      newContact.save().then( contact => {
-          response.json(contact)
-      }).catch( e => next(e) )
-/*
-  }
-  */
 })
 
 // route ok
 app.get('/api/persons/:id', (request, response, next) => {
-    
   const id = request.params.id
 
   Contact.findById(id).then( contact => {
@@ -106,7 +67,6 @@ app.get('/api/persons/:id', (request, response, next) => {
     }else{
       response.status(404).end()
     }
-      
   }).catch( e => next(e))
 
 })
@@ -131,7 +91,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
   const id = request.params.id
 
-  Contact.findByIdAndUpdate( id, {name, number}, {new: true, runValidators: true, context: 'query'} )
+  Contact.findByIdAndUpdate( id, { name, number }, { new: true, runValidators: true, context: 'query' } )
   .then( updatedContact => response.json(updatedContact) )
   .catch( e => next(e) )
 
@@ -182,11 +142,7 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-
 app.use(errorHandler)
-
-
-
 
 /* SERVER */
 
