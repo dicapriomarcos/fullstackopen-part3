@@ -107,6 +107,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 })
 
+// route ok
 app.delete('/api/persons/:id', (request, response, next) => {
 
   const id = request.params.id
@@ -116,6 +117,22 @@ app.delete('/api/persons/:id', (request, response, next) => {
     response.status(204).end()
   })
   .catch( e => {next(e)})
+
+})
+
+// route ok
+app.put('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
+  const body = request.body
+
+  const contact = {
+    name: body.name,
+    number: body.number
+  }
+
+  Contact.findByIdAndUpdate( id, contact, {new: true} )
+  .then( updatedContact => response.json(updatedContact) )
+  .catch( e => next(e) )
 
 })
 
