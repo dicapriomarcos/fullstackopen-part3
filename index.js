@@ -125,6 +125,8 @@ app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
   const body = request.body
 
+  console.log(body)
+
   const contact = {
     name: body.name,
     number: body.number
