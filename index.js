@@ -1,4 +1,6 @@
 require('dotenv').config()
+
+
 const express = require('express')
 const app = express()
 const Contact = require('./models/contact')
@@ -8,6 +10,7 @@ const morgan = require('morgan')
 /* CONFIGURATION */
 
 app.use(cors())
+
 app.use(express.json());
 
 morgan.token('postData', (request, response) => {
@@ -20,6 +23,7 @@ morgan.token('postData', (request, response) => {
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'));
 app.use(express.static('dist'))
+
 
 /* ROUTES */
 
@@ -87,45 +91,70 @@ app.post('/api/persons', ( request, response ) => {
   */
 })
 
-app.get('/api/persons/:id', (request, response) => {
+// route ok
+app.get('/api/persons/:id', (request, response, next) => {
     
   const id = request.params.id
 
   Contact.findById(id).then( contact => {
+    if(contact){
       response.json(contact)
-  }).catch( e => {    
-      console.log(`Error:`, e)
+    }else{
+      response.status(404).end()
+    }
+      
+  }).catch( e => next(e))
+
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+
+  const id = request.params.id
+
+  Contact.findByIdAndDelete(id)
+  .then( result => {
+    response.status(204).end()
   })
+  .catch( e => {next(e)})
 
 })
 
 
 app.get('/info', (request, response) => {
-    const now = Date();
-    if( persons.length === 0){
-        response.send(`<p>The phonebook haven´t any data<p>
-        <p>${now}</p>`);
-    }else{
-         response.send(`
-        <p>The Phonebook has info for ${persons.length} people</p>
-        <p>${now}</p>`
-         );        
-    }
-
-  })
-
-
-
-
-app.delete('/api/persons/:id', (request, response) => {
-
-    const id = Number(request.params.id)
-
-    persons = Contact.filter(person => person.id !== id)
-
-    response.status(204).end()
-
+  const now = Date();
+  if( persons.length === 0){
+      response.send(`<p>The phonebook haven´t any data<p>
+      <p>${now}</p>`);
+  }else{
+        response.send(`
+      <p>The Phonebook has info for ${persons.length} people</p>
+      <p>${now}</p>`
+        );        
+  }
 })
+
+
+// Endpoints not found
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+
+// error Handle
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+
+app.use(errorHandler)
 
 
 
