@@ -38,7 +38,7 @@ app.get('/api/persons', (request, response) => {
 
 
 // route ok
-app.post('/api/persons', ( request, response ) => {
+app.post('/api/persons', ( request, response, next ) => {
 
   let errorMessages = [];
 
@@ -48,7 +48,13 @@ app.post('/api/persons', ( request, response ) => {
   const number = body.number
 
   // name validation
+/*
+  if( name === undefined || name === '' ){
 
+    return response.status(400).json({ error: 'name content missing' })
+
+  }
+  */
   /*
   if( !name ){
       errorMessages.push('name don´t be empty')
@@ -83,9 +89,7 @@ app.post('/api/persons', ( request, response ) => {
 
       newContact.save().then( contact => {
           response.json(contact)
-      }).catch( e => {
-          console.log(`Error:`, e)
-      })
+      }).catch( e => next(e) )
 /*
   }
   */
@@ -122,15 +126,12 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 // route ok
 app.put('/api/persons/:id', (request, response, next) => {
+
+  const { name, number } = request.body
+
   const id = request.params.id
-  const body = request.body
 
-  const contact = {
-    name: body.name,
-    number: body.number
-  }
-
-  Contact.findByIdAndUpdate( id, contact, {new: true} )
+  Contact.findByIdAndUpdate( id, {name, number}, {new: true, runValidators: true, context: 'query'} )
   .then( updatedContact => response.json(updatedContact) )
   .catch( e => next(e) )
 
@@ -174,7 +175,9 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
