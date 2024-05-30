@@ -136,20 +136,28 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 })
 
-/*
-app.get('/info', (request, response) => {
+
+app.get('/info', (request, response, next) => {
   const now = Date();
-  if( persons.length === 0){
+
+  Contact.find({})
+  .then(contacts => {
+    if(  contacts.length === 0) {
       response.send(`<p>The phonebook haven´t any data<p>
       <p>${now}</p>`);
-  }else{
-        response.send(`
-      <p>The Phonebook has info for ${persons.length} people</p>
+    }else{
+      response.send(`
+      <p>The Phonebook has info for ${contacts.length} people</p>
       <p>${now}</p>`
-        );        
-  }
+      );
+    }
+  })
+  .catch(e => {
+    console.log(`Error:`, e)
+  })
+
 })
-*/
+
 
 
 // Endpoints not found
